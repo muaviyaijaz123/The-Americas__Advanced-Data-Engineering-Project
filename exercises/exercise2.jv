@@ -3,7 +3,6 @@ pipeline TreesPipeline{
         -> TreesTextFileInterpreter
         -> TreesCSVInterpreter
         -> TreesDropColumn
-        // -> TreesDataSelector
         -> TreesTableInterpreter
         -> TreesLoader;
 
@@ -23,10 +22,6 @@ pipeline TreesPipeline{
      block TreesDropColumn oftype ColumnDeleter {
         delete: [column E];
     }
-
-    // block TreesDataSelector oftype CellRangeSelector{
-
-    // }
 
     block TreesTableInterpreter oftype TableInterpreter{
         columns: [
