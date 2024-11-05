@@ -25,7 +25,7 @@ pipeline TreesPipeline{
 
     block TreesTableInterpreter oftype TableInterpreter{
         columns: [
-            "lfd_nr" oftype text,
+            "lfd_nr" oftype integer,
             "stadtteil" oftype VogelsangStadt,
             "standort" oftype text,
             "baumart_botanisch" oftype text,
