@@ -1,32 +1,40 @@
 
 # Project Plan
 ## Title
-Cancer in the United States of America by state: MADE Research Study 2024
+Racial Employment and Wage Ratios between Men and Women: Black vs. White
 
 ## Main Question
-Which states in the USA have lowest cancer rates and cancer deaths?
+1. What is the impact of education level on wages and employment across black and white population
+2. What is the relation between the wage and employment for Men and Women based on their education levels
 
 ## Description
-In America, cancer is one of the leading causes of death. There are multiple factors contributing to it, including unhealthy lifestyle and excess consumption of fast food, tobacco and alcohol. Although mortality rates are decreasing due to advancements in medical technolgy, new types of cancer are also being discovered.
+This project aims to explore the disparities in wages and employment-to-population ratios across different education levels, focusing on Black and White populations in the USA. By analyzing two key datasets—wages by education level and employment-to-population ratios—this project seeks to investigate how education influences both employment and wage outcomes for men and women, with a specific focus on racial differences.
 
-This project compares the cancer statistics across different US states, particularly focusing on identifying the state(s) with lowest cancer rates and deaths. This may help us find helpful patterns for the states with higher rates to learn from.
+### Datasets Used:
+1. **Wages by Education Level in the USA (1973-2022)**: This dataset provides information on the average wages across various education levels, from high school to advanced degrees, for different demographic groups.
+2. **Employment-to-Population Ratio by Education Level(1973-2022)**: This dataset presents the employment-to-population ratio for individuals based on their education level, broken down by race (Black and White) and gender (Men and Women).
+
+### Objectives:
+- **Impact of Education on Wages and Employment**: To understand how education level correlates with wages and employment across Black and White populations.
+- **Wage and Employment Relation for Men and Women**: To explore how wages and employment rates relate to each other for men and women, based on their education level, and identify any significant disparities based on gender and race.
 
 ## Datasources
-### Datasource1: Cancer Statistics in US States
-* Data URL: https://www.kaggle.com/datasets/rishidamarla/cancer-statistics-in-us-states
-* Data Type: XLS
-* Content: This dataset contains different stats on cancer across the USA.
-
-### Datasource2: Cancer Regression
-* Data URL: https://www.kaggle.com/datasets/varunraskar/cancer-regression
+### Datasource1: Wages by Education in the USA (1973-2022)
+* Data URL: https://www.kaggle.com/datasets/asaniczka/wages-by-education-in-the-usa-1973-2022
 * Data Type: CSV
-* Description: This dataset contains various demographic and health-related data for different regions across the USA.
+* Content: This dataset contains average hourly wages stats based on education levels in USA across different years from 1973 - 2022.
+
+### Datasource2: Employment-to-Population Ratio for USA (1979-2022)
+* Data URL: https://www.kaggle.com/datasets/asaniczka/employment-to-population-ratio-for-usa-1979-2023/data
+* Data Type: CSV
+* Description: This dataset contains employment to population ratio in USA across different years from 1979-2022
 
 ## Work Packages
-1. Topic selection and research question identification
-2. Relevant dataset selection
-3. Data cleanup
-4. Data analysis 
-5. Pattern identification from the trends
-6. Report creation based on findings
+1. Explore datasets
+2. Data Pre-Processing 
+3. Data Cleaning
+2. Create ETL Pipeline
+4. Data Analysis 
+5. Finding Patterns across the datasets
+6. Data Report creation based on findings
 7. Conclusion
