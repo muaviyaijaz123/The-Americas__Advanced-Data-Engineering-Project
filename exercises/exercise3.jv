@@ -64,12 +64,6 @@ pipeline CountriesEconomyPipeline{
         file: "./country-stats.sqlite";
     }
 
-    valuetype Alpha3Country oftype text{
-        constraints: [
-            CountryCodeNotEmptyConstraint,
-        ];
-    }
-
     valuetype GDPCapita oftype decimal{
         constraints: [
             PositiveDecimalConstraint
@@ -78,11 +72,9 @@ pipeline CountriesEconomyPipeline{
 
     valuetype BondIssuanceShare oftype decimal{
         constraints: [
-            BondIssuanceLowerUpperLimitConstraint
+            BondIssuanceLowerUpperLimitConstraint,
         ];
     }
-
-    constraint CountryCodeNotEmptyConstraint on text: value.length != 0;
 
     constraint PositiveDecimalConstraint on decimal: value > 0;
 
