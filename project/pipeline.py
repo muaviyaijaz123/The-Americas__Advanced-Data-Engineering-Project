@@ -5,6 +5,8 @@ import subprocess
 import zipfile
 import pandas as pd
 import sqlite3
+import time
+import sys
 
 #GLOBAL VARIABLES
 
@@ -13,23 +15,31 @@ parent_directory = os.path.dirname(script_directory)
 
 #-------------------------------- Set Kaggle API ------------------------#
 def setKaggleAPI():
-    kaggle_dir = os.path.expanduser("~/.kaggle")
-    os.makedirs(kaggle_dir, exist_ok=True)
+    try:
+        kaggle_dir = os.path.expanduser("~/.kaggle")
+        os.makedirs(kaggle_dir, exist_ok=True)
 
 
-    #script_dir = os.path.dirname(os.path.abspath(__file__))  # Directory where the script is located
-    kaggle_source_file_path = os.path.join(script_directory, 'kaggle.json')  # Adjust if kaggle.json is elsewhere
-    #kaggle_source_file_path = 'kaggle.json'  # Use the full path if kaggle.json is not in the same directory as this script
-    kaggle_destination_folder_path = os.path.join(kaggle_dir, 'kaggle.json')
-    print(kaggle_source_file_path)
+        #script_dir = os.path.dirname(os.path.abspath(__file__))  # Directory where the script is located
+        kaggle_source_file_path = os.path.join(script_directory, 'kaggle.json')  # Adjust if kaggle.json is elsewhere
+        #kaggle_source_file_path = 'kaggle.json'  # Use the full path if kaggle.json is not in the same directory as this script
+        kaggle_destination_folder_path = os.path.join(kaggle_dir, 'kaggle.json')
+        print(kaggle_source_file_path)
 
-    if not os.path.exists(kaggle_source_file_path):
-        raise FileNotFoundError(f"The kaggle file {kaggle_source_file_path} does not exist! Verify its path again.")
+        if not os.path.exists(kaggle_source_file_path):
+            sys.exit(f"The kaggle file {kaggle_source_file_path} does not exist! Verify its path again.")
 
-    shutil.copy(kaggle_source_file_path, kaggle_destination_folder_path)
+        shutil.copy(kaggle_source_file_path, kaggle_destination_folder_path)
 
-    if platform.system() != 'Windows':
-        os.chmod(kaggle_destination_folder_path, 0o600)
+        if platform.system() != 'Windows':
+            os.chmod(kaggle_destination_folder_path, 0o600)
+
+    except FileNotFoundError as e:
+        sys.exit(f"kaggle JSON file was not found: {e}")
+    except PermissionError as e:
+        sys.exit(f"Permission Error: {e}. Please veridy permissions in your systems for accessing and copying kaggle.json.")
+    except Exception as e:
+        sys.exit(f"Unknown error occurred while setting kaggle API token!!: {e}")    
 
 #-------------------------------- Set Kaggle API ------------------------#
 
@@ -37,20 +47,40 @@ def setKaggleAPI():
 
 # -----------------EXTRACT-----------------#
 
-def data_sets_extraction(dataset):
-    # script_directory = os.path.dirname(os.path.abspath(__file__))
-    # parent_directory = os.path.dirname(script_directory)
-    
-
+def data_sets_extraction(dataset, maximum__download_retries = 3, api_call_retry_delay = 3):
+  
     data_directory_path = os.path.join(parent_directory,"data")
-    print(data_directory_path)
-    subprocess.run(["kaggle", "datasets", "download", "-d", dataset,"-p",data_directory_path], check=True)
-        
     zip_file_path = os.path.join(data_directory_path, dataset.split('/')[1]+ ".zip")
 
     if not os.path.exists(data_directory_path):
         os.makedirs(data_directory_path)
 
+    retry_network_call_count = 0
+    while retry_network_call_count <= maximum__download_retries:
+        try:
+            download_result_call = subprocess.run(["kaggle", "datasets", "download", "-d", dataset,"-p",data_directory_path],
+            check=True)  # Explicitly capture stderr)
+            break
+        
+        except subprocess.TimeoutExpired:
+            retry_network_call_count += 1
+            if retry_network_call_count >  maximum__download_retries:
+                print(f"Maximum tries reached. Dataset url: {dataset} could not be downloaded.")
+                sys.exit("Dataset couldnt be extracted.. Script can't be run further")
+
+            print(f"Retrying in {api_call_retry_delay} seconds...")   
+            time.sleep(api_call_retry_delay)
+
+        except subprocess.CalledProcessError as e:
+            print(f"Error downloading dataset: {e}")
+            retry_network_call_count += 1
+            if retry_network_call_count > maximum__download_retries:
+                print(f"Maximum tries reached. Dataset url: {dataset} could not be downloaded.")
+                sys.exit("Dataset couldnt be extracted.. Script can't be run further")
+
+            print(f"Retrying in {api_call_retry_delay} seconds...")
+            time.sleep(api_call_retry_delay)
+            
     if os.path.exists(zip_file_path):
         try:
             with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
@@ -70,7 +100,7 @@ def data_sets_extraction(dataset):
 
     else:
         print("The zip file does not exist.")
-        
+        sys.exit("Error: Download failed and No zip file found. Terminating script...")
 # -----------------EXTRACT-----------------#
 
 # -----------------TRANSFORM-----------------#
