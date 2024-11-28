@@ -91,7 +91,7 @@ def data_sets_extraction(dataset, maximum__download_retries = 3, api_call_retry_
                 df = pd.read_csv(data_directory_path+"/"+csv_file[0])
 
                 os.remove(zip_file_path)
-                print(f"Zip file being removed: {zip_file_path}")
+                
                 return df
         except zipfile.BadZipFile as badzip:
             print(f"File is not compatible with ZIP format. Error while unzipping {zip_file_path}: {badzip}")
@@ -109,7 +109,7 @@ def fill_missing_values(df, columns, strategy = "mean"):
     
     for col in columns:
         if col in df.columns:
-            value_to_fill = 0
+            value_to_fill = df[col].mean()
             if(strategy == "mean"):
                 value_to_fill = df[col].mean()
             elif(strategy == "mode"):
@@ -117,7 +117,7 @@ def fill_missing_values(df, columns, strategy = "mean"):
             elif(strategy == "median"):
                 value_to_fill = df[col].median()
             else:
-                print("Unknown strategy paramter passed")
+                print("Invalid Strategy given in argument... Using mean as default")
                 return df
 
             df.fillna({col: value_to_fill}, inplace=True)
@@ -129,7 +129,7 @@ def fill_missing_values_excluding_columns(df, exclude_columns = [], strategy = "
     
     for col in columns_to_fill:
         if col in df.columns:
-            value_to_fill = 0
+            value_to_fill = df[col].mean()
             if(strategy == "mean"):
                 value_to_fill = df[col].mean()
             elif(strategy == "mode"):
@@ -137,7 +137,7 @@ def fill_missing_values_excluding_columns(df, exclude_columns = [], strategy = "
             elif(strategy == "median"):
                 value_to_fill = df[col].median()
             else:
-                print("Unknown strategy paramter passed")
+                print("Invalid Strategy given in argument... Using mean as default")
                 return df
 
             df.fillna({col: value_to_fill}, inplace=True)
@@ -148,13 +148,33 @@ def drop_duplicates(df, columns_subset = None):
     return df.drop_duplicates(subset = columns_subset)
 
 def merge_data_sets(wages_data_transformed, employment_data_transformed):
-    return pd.merge(wages_data_transformed,employment_data_transformed) 
+
+    # if on or both datasets are empty
+    if wages_data_transformed.empty or employment_data_transformed.empty:
+        sys.exit("Cannot merge the given datasets as one or both are empty. Please verify the previous steps /n Exiting pipeline...")
+
+    if "year" in wages_data_transformed.columns and "year" in employment_data_transformed.columns:
+        try:
+           return pd.merge(wages_data_transformed,employment_data_transformed) 
+        except Exception as e:
+           sys.exit("Unknown error occurred while merging datasets. Pipeline terminated...")
+
+    
 
 def transform_wages_data_set(wages_data):
-    
+
+    # Check if wages data is not empty
+    if wages_data.empty:
+        sys.exit("Wages Dataset is empty. Cannot continue the pipeline...")
+
+
     #1. Remove unnecessary columns
     wages_data_columns_to_keep = ['year'] + [col for col in wages_data.columns if 'white' in col or 'black' in col]
     wages_data = wages_data[wages_data_columns_to_keep]
+
+    # Check if year column exists
+    if 'year' not in wages_data.columns:
+        sys.exit("Year column is missing from the data. Pipeline terminated....")
 
     wages_years_to_remove = [1973,1974,1975,1976,1977,1978]
     wages_data = wages_data[~wages_data["year"].isin(wages_years_to_remove)]
@@ -192,6 +212,15 @@ def transform_wages_data_set(wages_data):
     'black_women_bachelors_degree': 'Black_Women_Bachelors_Degree_Hourly_Wage',
     'black_women_advanced_degree': 'Black_Women_Advanced_Degree_Hourly_Wage' 
     }
+
+    # Filter the mapping to only include columns that exist in the dataset
+    existing_columns_mapper = {old_col: new_col for old_col, new_col in wages_data_mapper.items() if old_col in wages_data.columns}
+
+    # Check if any columns are skipped
+    if len(existing_columns_mapper) < len(wages_data_mapper):
+        missing_columns = set(wages_data_mapper.keys()) - set(existing_columns_mapper.keys())
+        print(f"Warning: Skipped the following columns as they dont exist: {', '.join(missing_columns)}")
+
     wages_data = wages_data.rename(columns = wages_data_mapper)
     
     #3. Remove duplicates 
@@ -218,6 +247,11 @@ def transform_wages_data_set(wages_data):
 
 
 def transform_employment_data_set(employment_data):
+
+    # Check if wages data is not empty
+    if employment_data.empty:
+        sys.exit("Employment Dataset is empty. Cannot continue the pipeline...")
+
     #1. Remove unnecessary columns
     employment_data_to_keep = ['year'] + ['total_population'] + [col for col in employment_data.columns if 'white' in col or 'black' in col]
     employment_data = employment_data[employment_data_to_keep]
@@ -286,6 +320,15 @@ def transform_employment_data_set(employment_data):
     'white_men_bachelors_degree': 'White_Men_Employment_Ratio_Bachelors_Degree',
     'white_men_advanced_degree': 'White_Men_Employment_Ratio_Advanced_Degree'
     }
+
+    # Filter the mapping to only include columns that exist in the dataset
+    existing_columns_mapper = {old_col: new_col for old_col, new_col in employment_data_mapper.items() if old_col in employment_data.columns}
+
+    # Check if any columns are skipped
+    if len(existing_columns_mapper) < len(employment_data_mapper):
+        missing_columns = set(employment_data_mapper.keys()) - set(existing_columns_mapper.keys())
+        print(f"Warning: Skipped the following columns as they dont exist: {', '.join(missing_columns)}")
+
     employment_data = employment_data.rename(columns = employment_data_mapper)
 
     #3. Remove duplicates 
@@ -302,10 +345,11 @@ def merged_data_set_transformation(df):
     
         
     #7. Reorder columns, moving total population to second position
-    cols = list(df.columns)
-    cols.remove("total_population")  
-    cols.insert(1, "total_population") 
-    df = df[cols]
+    if "total_population" in df.columns:
+        cols = list(df.columns)
+        cols.remove("total_population")  
+        cols.insert(1, "total_population") 
+        df = df[cols]
 
     #8. sort dataframe by year
     df.sort_values(by='year', ascending=False, inplace=True)
@@ -317,12 +361,17 @@ def merged_data_set_transformation(df):
 def load_datasets(df):
     # script_dir = os.path.dirname(os.path.abspath(__file__))
     # parent_dir = os.path.dirname(script_dir)
-    data_dir = os.path.join(parent_directory, 'data')
-    db_path = os.path.join(data_dir, 'wages_and_employment_data.db')
-    
-    conn = sqlite3.connect(db_path)
-    df.to_sql('wages_and_employment_ratio_by_education', conn, if_exists='replace', index=False)
-    conn.close()
+    try:
+        
+        data_dir = os.path.join(parent_directory, 'data')
+        db_path = os.path.join(data_dir, 'wages_and_employment_data.db')
+        conn = sqlite3.connect(db_path)
+        df.to_sql('wages_and_employment_ratio_by_education', conn, if_exists='replace', index=False)
+        conn.close()
+        print("SQL file generated ")
+    except Exception as e:
+        sys.exit("Unknown error occurred during loading dataset in database. Pipeline terminated!!!")
+        
 # -----------------LOAD-----------------#
 
 def main():
@@ -339,15 +388,24 @@ def main():
     wage_by_education_dataset = data_sets_extraction(dataset_names[0])
     employment_to_population_dataset = data_sets_extraction(dataset_names[1])
 
+    print(f"Zip Files of Datasets removed after extraction")
+    print("Tranforming Datasets....")
+    print("\n")
+
     transformed_wages_data_set = transform_wages_data_set(wage_by_education_dataset)
     transformed_employment_data_set = transform_employment_data_set(employment_to_population_dataset)
     
     merged_data_set = merge_data_sets(transformed_wages_data_set, transformed_employment_data_set )
-    
-    merged_data_set = merge_data_sets(transformed_wages_data_set, transformed_employment_data_set )
+
     final_transformed_data_set = merged_data_set_transformation(merged_data_set)
 
+    print("Tranformation step completed.")
+    print("\n")
+
     load_datasets(final_transformed_data_set)
+
+    print("Pipeline completed successfully....")
+    print("\n")
 
 if __name__ == "__main__":
     main()
