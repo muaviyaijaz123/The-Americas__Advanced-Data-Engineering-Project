@@ -19,7 +19,7 @@ else
 fi
 
 # Running the Python script
-python3 "$PROJECT_DIR/pipeline.py"
+python3 "$PROJECT_DIR/test_pipeline.py"
 
 
 #Requirements to run the pipeline

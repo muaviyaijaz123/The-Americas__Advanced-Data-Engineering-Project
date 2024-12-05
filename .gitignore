@@ -3,3 +3,4 @@
 /project/kaggle.json
 !/data/.gitkeep
 *.sqlite
+__pycache__/

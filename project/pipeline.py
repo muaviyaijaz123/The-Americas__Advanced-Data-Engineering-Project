@@ -52,6 +52,7 @@ def data_sets_extraction(dataset, maximum__download_retries = 3, api_call_retry_
     data_directory_path = os.path.join(parent_directory,"data")
     zip_file_path = os.path.join(data_directory_path, dataset.split('/')[1]+ ".zip")
 
+
     if not os.path.exists(data_directory_path):
         os.makedirs(data_directory_path)
 
@@ -88,15 +89,16 @@ def data_sets_extraction(dataset, maximum__download_retries = 3, api_call_retry_
                 print("Dataset extracted - Success!")
                     
                 csv_file = zip_ref.namelist()
+                
                 df = pd.read_csv(data_directory_path+"/"+csv_file[0])
-
+                
                 os.remove(zip_file_path)
                 
                 return df
         except zipfile.BadZipFile as badzip:
-            print(f"File is not compatible with ZIP format. Error while unzipping {zip_file_path}: {badzip}")
+            print(f"File is not compatible with ZIP format. Error while unzipping {zip_file_path}")
         except Exception as e:
-            print(f"Other unknown error during extracting {zip_file_path}: {e}")
+            print(f"Other unknown error during extracting {zip_file_path}")
 
     else:
         print("The zip file does not exist.")
@@ -118,7 +120,7 @@ def fill_missing_values(df, columns, strategy = "mean"):
                 value_to_fill = df[col].median()
             else:
                 print("Invalid Strategy given in argument... Using mean as default")
-                return df
+                #return df
 
             df.fillna({col: value_to_fill}, inplace=True)
     return df
@@ -375,6 +377,7 @@ def load_datasets(df):
 # -----------------LOAD-----------------#
 
 def main():
+    print("\nETL Pipeline started...")
     # Please sign into Kaggle -> Go to Settings
     # Create API token -> place kaggle.json file into project directory
     # Run the script
@@ -383,28 +386,44 @@ def main():
     "asaniczka/employment-to-population-ratio-for-usa-1979-2023",
     ]
 
+    print(f"Setting Up Kaggle API...")
     setKaggleAPI()
-    
+    print(f"Kaggle API Setup Done...\n")
+
+    print(f"Extracting Wages Dataset...")
     wage_by_education_dataset = data_sets_extraction(dataset_names[0])
+    print(f"Wages Dataset Extraction Done...\n")
+
+    print(f"Extracting Employment-To-Population Dataset...")
     employment_to_population_dataset = data_sets_extraction(dataset_names[1])
+    print(f"Employment-To-Population Dataset Extraction Done...\n")
 
-    print(f"Zip Files of Datasets removed after extraction")
-    print("Tranforming Datasets....")
-    print("\n")
-
-    transformed_wages_data_set = transform_wages_data_set(wage_by_education_dataset)
-    transformed_employment_data_set = transform_employment_data_set(employment_to_population_dataset)
+    print(f"Zip Files of Datasets removed after extraction\n")
     
-    merged_data_set = merge_data_sets(transformed_wages_data_set, transformed_employment_data_set )
+    print("Tranforming Datasets....")
 
+    print(f"Transforming Wages Dataset...")
+    transformed_wages_data_set = transform_wages_data_set(wage_by_education_dataset)
+    print(f"Wages Dataset Trasformation Done...\n")
+
+    print(f"Transforming Employment-To_Population Dataset...")
+    transformed_employment_data_set = transform_employment_data_set(employment_to_population_dataset)
+    print(f"Employment-To_Population Dataset Transformation Done...\n")
+
+    print("Merging Both Datasets....")
+    merged_data_set = merge_data_sets(transformed_wages_data_set, transformed_employment_data_set)
     final_transformed_data_set = merged_data_set_transformation(merged_data_set)
+    print(merged_data_set.shape)
+    print("Datasets Merged...\n")
 
     print("Tranformation step completed.")
     print("\n")
 
+    print("Loading Transformed Datasets into SQLite db sink....")
     load_datasets(final_transformed_data_set)
+    print("Datasets Loaded into sink successfully\n")
 
-    print("Pipeline completed successfully....")
+    print("ETL Pipeline completed successfully....")
     print("\n")
 
 if __name__ == "__main__":
