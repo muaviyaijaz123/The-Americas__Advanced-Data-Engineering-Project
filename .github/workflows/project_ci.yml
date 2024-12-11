@@ -1,0 +1,69 @@
+name: MADE Project CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - project/**
+    paths-ignore:
+      - project/data_exploration.ipynb 
+      - project/data-report.pdf  
+      - project/project-plan.md
+      
+
+
+jobs:
+  run-project-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - run :  echo "Job is triggered by a file updated event in the project folder..."  
+      - name: Repository Checkout
+        uses: actions/checkout@v4
+
+      - run : echo "The reposiotry has been checked out."
+      - run : echo "Initializing the process now for project tests....." 
+
+      #Install Python
+      - run :  echo "Installing Python3 now..."
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+           python-version: "3.12"
+      - run: echo "Python 3.12 installed successfully."     
+
+      # Install requirements.txt file
+      - name: Install Python dependencies
+        run: |
+          echo "Installing Project dependencies defined in requirements.txt file..."
+          pip install -r requirements.txt  
+
+      - run: echo "Installed defined dependencies succesfully from requirements.txt file."    
+
+      - run: echo "Setting up Kaggle credentials now..."
+      - name: Set up Kaggle credentials
+        run: |
+            mkdir -p ~/.kaggle
+            echo "{\"username\":\"${{ secrets.KAGGLE_USERNAME }}\", \"key\":\"${{ secrets.KAGGLE_USER_CREDENTIALS }}\"}" > ~/.kaggle/kaggle.json
+            chmod 600 ~/.kaggle/kaggle.json
+            echo "Kaggle credentials for the user have been set"
+        env:
+            KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+            KAGGLE_KEY: ${{ secrets.KAGGLE_USER_CREDENTIALS }}
+
+      - run: echo "Setup completed successfully."      
+
+      - run: echo "Making the tests.sh file executable now..."
+      - name: Tests File Executable Permissions
+        run: |
+            chmod +x ./project/tests.sh
+
+      - run: echo "Permissions Setup completed."      
+
+      - run: echo "Executing Project tests cases"
+      - name: Tests Execution
+        run: |
+            ./project/tests.sh
+
+      - run: echo "Tests Execution completed."     
+    
