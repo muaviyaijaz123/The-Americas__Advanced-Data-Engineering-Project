@@ -13,7 +13,7 @@ fi
 # Running the Python script
 python3 "$PROJECT_DIR/test_pipeline.py"
 
-# Requirements to run the tests pipeline
+# Requirements to run the tests pipeline 
 
 # 1. Sign into your Kaggle Account 
 # 2. Go to Settings option from top right
