@@ -6,10 +6,6 @@ on:
       - main
     paths:
       - project/**
-    paths-ignore:
-      - project/data_exploration.ipynb 
-      - project/data-report.pdf  
-      - project/project-plan.md
       
 
 
