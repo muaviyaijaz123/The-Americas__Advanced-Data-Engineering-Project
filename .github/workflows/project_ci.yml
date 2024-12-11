@@ -29,7 +29,7 @@ jobs:
       - run: echo "Python 3.12 installed successfully."     
 
       # Install requirements.txt file
-      - name: Install Python dependencies
+      - name: Install Project dependencies
         run: |
           echo "Installing Project dependencies defined in requirements.txt file..."
           pip install -r ./project/requirements.txt  

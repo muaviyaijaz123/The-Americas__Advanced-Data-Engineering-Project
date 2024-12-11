@@ -11,7 +11,7 @@ if [[ "$(basename "$SCRIPT_DIR")" != "project" ]]; then
 fi
 
 # Running the Python script
-python3 "$PROJECT_DIR/pipeline.py"
+python3 "$PROJECT_DIR/pipeline.py"  
 
 
 # Requirements to run the pipeline
