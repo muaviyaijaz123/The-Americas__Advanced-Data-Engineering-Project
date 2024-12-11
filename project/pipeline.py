@@ -16,23 +16,25 @@ parent_directory = os.path.dirname(script_directory)
 #-------------------------------- Set Kaggle API ------------------------#
 def setKaggleAPI():
     try:
+        # Path to the Kaggle folder in the home directory
         kaggle_dir = os.path.expanduser("~/.kaggle")
-        os.makedirs(kaggle_dir, exist_ok=True)
 
+        # Path to the kaggle.json file in the home directory
+        kaggle_file_path = os.path.join(kaggle_dir, 'kaggle.json')
 
-        #script_dir = os.path.dirname(os.path.abspath(__file__))  # Directory where the script is located
-        kaggle_source_file_path = os.path.join(script_directory, 'kaggle.json')  # Adjust if kaggle.json is elsewhere
-        #kaggle_source_file_path = 'kaggle.json'  # Use the full path if kaggle.json is not in the same directory as this script
-        kaggle_destination_folder_path = os.path.join(kaggle_dir, 'kaggle.json')
-        print(kaggle_source_file_path)
+        # Check if the Kaggle folder exists, if not, create it
+        if not os.path.exists(kaggle_dir):
+            os.makedirs(kaggle_dir, exist_ok=True)
 
-        if not os.path.exists(kaggle_source_file_path):
-            sys.exit(f"The kaggle file {kaggle_source_file_path} does not exist! Verify its path again.")
+        # Check if the kaggle.json file already exists in the home directory
+        if not os.path.exists(kaggle_file_path):
+            sys.exit(f"The kaggle.json file is missing in {kaggle_dir}. Please place it there...")
 
-        shutil.copy(kaggle_source_file_path, kaggle_destination_folder_path)
-
+        # If the file exists, check if the platform is not Windows and set the correct permissions
         if platform.system() != 'Windows':
-            os.chmod(kaggle_destination_folder_path, 0o600)
+            os.chmod(kaggle_file_path, 0o600)
+
+        print(f"Kaggle credentials file found and ready: {kaggle_file_path}")
 
     except FileNotFoundError as e:
         sys.exit(f"kaggle JSON file was not found: {e}")
