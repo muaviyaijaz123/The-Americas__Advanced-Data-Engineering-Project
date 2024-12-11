@@ -31,12 +31,11 @@ jobs:
       # Install requirements.txt file
       - name: Install Python dependencies
         run: |
-          echo "Installing Project dependencies defined in requirements.txt file..."
           pip install -r ./project/requirements.txt  
 
       - run: echo "Installed defined dependencies succesfully from requirements.txt file."    
 
-      - run: echo "Setting up Kaggle credentials now..."
+      
       - name: Set up Kaggle credentials
         run: |
             mkdir -p ~/.kaggle
@@ -45,21 +44,17 @@ jobs:
             echo "Kaggle credentials for the user have been set"
         env:
             KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
-            KAGGLE_KEY: ${{ secrets.KAGGLE_USER_CREDENTIALS }}
+            KAGGLE_KEY: ${{ secrets.KAGGLE_USER_CREDENTIALS }}  
 
-      - run: echo "Setup completed successfully."      
-
-      - run: echo "Making the tests.sh file executable now..."
       - name: Tests File Executable Permissions
         run: |
             chmod +x ./project/tests.sh
-
       - run: echo "Permissions Setup completed."      
 
-      - run: echo "Executing Project tests cases"
+      
       - name: Tests Execution
         run: |
             ./project/tests.sh
 
-      - run: echo "Tests Execution completed."     
+      - run: "Tests Execution completed."     
     
