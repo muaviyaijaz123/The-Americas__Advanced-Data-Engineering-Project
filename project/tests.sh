@@ -13,19 +13,11 @@ fi
 # Running the Python script
 python3 "$PROJECT_DIR/test_pipeline.py"
 
-#Requirements to run the pipeline
+# Requirements to run the tests pipeline
 
-# 1. Please sign into your Kaggle Accont first
+# 1. Sign into your Kaggle Account 
 # 2. Go to Settings option from top right
 # 3. Create 'New API token' which will crete 'kaggle.json' file
 # 4. Place this kaggle.json file into project folder and then run the pipeline
 
-#5. I have made a requirements.txt file now separately and incldued in this script to install those dependencies
-# but in case it does not work make sure to have these dependecies on your system
-
-# import shutil
-# import platform
-# import subprocess
-# import zipfile
-# import pandas as pd
-# import sqlite3
+# I am installing requirements.txt file now in yml file to install dependencies
