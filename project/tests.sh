@@ -10,17 +10,8 @@ if [[ "$(basename "$SCRIPT_DIR")" != "project" ]]; then
     PROJECT_DIR="$SCRIPT_DIR/project"
 fi
 
-# Install dependencies from requirements.txt
-if [[ -f "$PROJECT_DIR/requirements.txt" ]]; then
-    echo "Installing dependencies from requirements.txt...\n"
-    pip3 install -r "$PROJECT_DIR/requirements.txt"
-else
-    echo "requirements.txt not found in $PROJECT_DIR. Skipping dependency installation."
-fi
-
 # Running the Python script
 python3 "$PROJECT_DIR/test_pipeline.py"
-
 
 #Requirements to run the pipeline
 
