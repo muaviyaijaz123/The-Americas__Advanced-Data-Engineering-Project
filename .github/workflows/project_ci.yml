@@ -7,6 +7,8 @@ on:
     paths:
       - project/**
       - "!project/project-plan.md"
+      - "!project/data_exploration.ipynb"
+      - "!project/data-report.pdf"
       
 
 
