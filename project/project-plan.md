@@ -1,5 +1,5 @@
 
-# Project Plan
+# Project Plan 
 ## Title
 Racial Employment and Wage Ratios between Men and Women: Black vs. White
 

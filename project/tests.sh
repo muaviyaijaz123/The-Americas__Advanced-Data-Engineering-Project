@@ -20,4 +20,5 @@ python3 "$PROJECT_DIR/test_pipeline.py"
 # 3. Create 'New API token' which will crete 'kaggle.json' file
 # 4. Place this kaggle.json file into project folder and then run the pipeline
 
-# I am installing requirements.txt file now in yml file to install dependencies
+# I have also placed the requirements.txt file now in project folder
+# so that you know what dependencies to install

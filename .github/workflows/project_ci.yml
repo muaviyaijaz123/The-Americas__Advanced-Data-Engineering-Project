@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - project/**
+      - "!project/project-plan.md"
       
 
 
@@ -43,9 +44,6 @@ jobs:
             echo "{\"username\":\"${{ secrets.KAGGLE_USERNAME }}\", \"key\":\"${{ secrets.KAGGLE_USER_CREDENTIALS }}\"}" > ~/.kaggle/kaggle.json
             chmod 600 ~/.kaggle/kaggle.json
             echo "Kaggle credentials for the user have been set"
-        env:
-            KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
-            KAGGLE_KEY: ${{ secrets.KAGGLE_USER_CREDENTIALS }}
 
       - run: echo "Kaggle API Setup completed successfully."      
 
