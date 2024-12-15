@@ -79,7 +79,7 @@ pipeline StopsPipeline{
         ];
     }
 
-    constraint StopHaveUmlautConstraint on text: value matches /[äöüÄÖÜ]/;
+    constraint StopHaveUmlautConstraint on text: value matches /^[a-zA-ZäöüÄÖÜß\s./-]+$/;
 
     constraint LatitudeLongitudeRangeConstraint on decimal: value >= -90 and value <= 90;
 
