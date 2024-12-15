@@ -1,0 +1,91 @@
+pipeline StopsPipeline{
+    StopsExtractor
+        -> StopsArchiveInterpreter
+        -> StopsFilePicker
+        -> StopsFileInterpreter
+        -> StopsCSVInterpreter
+        -> StopsColumnDeleter
+        -> StopsDataSelector
+        -> StopsTableInterpreter
+        -> StopsLoader;
+
+
+    block StopsExtractor oftype HttpExtractor{
+        url: "https://gtfs.rhoenenergie-bus.de/GTFS.zip";
+    }
+
+    block StopsArchiveInterpreter oftype ArchiveInterpreter {
+        archiveType: "zip";
+    }
+
+    block StopsFilePicker oftype FilePicker {
+        path: "/stops.txt";
+    }
+
+    block StopsFileInterpreter oftype TextFileInterpreter{ 
+
+    }
+
+    block StopsCSVInterpreter oftype CSVInterpreter{
+        delimiter: ',';
+        enclosing: '"';
+    }
+
+    block StopsColumnDeleter oftype ColumnDeleter {
+        delete: [column B, column D];
+    }
+
+    block StopsDataSelector oftype CellRangeSelector{
+        select : range A1:E* ;
+    }
+
+    block StopsTableInterpreter oftype TableInterpreter{
+        header: true;
+        columns: [
+            "stop_id" oftype StopID,
+            "stop_name" oftype StopName,
+            "stop_lat" oftype StopLatLong,
+            "stop_lon" oftype StopLatLong,
+            "zone_id" oftype ZoneID,
+        ];
+    }
+
+    block StopsLoader oftype SQLiteLoader{
+        table: "stops";
+        file: "./gtfs.sqlite";
+    }
+
+    valuetype StopName oftype text{
+        constraints: [
+            StopHaveUmlautConstraint
+        ];
+    }
+
+    valuetype StopLatLong oftype decimal{
+        constraints: [
+            LatitudeLongitudeRangeConstraint,
+        ];
+    }
+
+    valuetype StopID oftype integer{
+        constraints: [
+            GreaterThanZeroConstraint,
+        ];
+    }
+
+    valuetype ZoneID oftype integer{
+        constraints: [
+            EqualsNineteenTwentyFiveZoneConstraint  // not putting greater > 0 as it already checks for 1925 specifically to handle 0 case too
+        ];
+    }
+
+    constraint StopHaveUmlautConstraint on text: value matches /[äöüÄÖÜ]/;
+
+    constraint LatitudeLongitudeRangeConstraint on decimal: value >= -90 and value <= 90;
+
+    constraint GreaterThanZeroConstraint on integer: value > 0;
+
+    constraint EqualsNineteenTwentyFiveZoneConstraint on integer: value == 1925;
+
+}
+
