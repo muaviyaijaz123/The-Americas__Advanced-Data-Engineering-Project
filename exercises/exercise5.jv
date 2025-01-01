@@ -43,7 +43,7 @@ pipeline StopsPipeline{
         header: true;
         columns: [
             "stop_id" oftype StopID,
-            "stop_name" oftype StopName,
+            "stop_name" oftype text,
             "stop_lat" oftype StopLatLong,
             "stop_lon" oftype StopLatLong,
             "zone_id" oftype ZoneID,
