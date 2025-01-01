@@ -227,7 +227,7 @@ class TestPipeline(unittest.TestCase):
         conn.close()
 
         # Checking expected shape
-        expected_shape = (44, 94)
+        expected_shape = (44, 66)
         self.assertEqual(df.shape, expected_shape, f"Expected DataFrame shape {expected_shape}, but got {df.shape}")
 
         print("-------------------SYSTEM LEVEL TEST STATUS: Pipeline Run successfully-------------\n")

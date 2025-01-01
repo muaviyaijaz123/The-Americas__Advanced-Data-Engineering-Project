@@ -4,8 +4,8 @@
 Racial Employment and Wage Ratios between Men and Women: Black vs. White
 
 ## Main Question
-1. What is the impact of education level on wages and employment across black and white population
-2. What is the relation between the wage and employment for Men and Women based on their education levels
+1. What is the impact of education level on wages and employment ratio for men and women among Black and White populations?
+2. What is the relationship between wages and employment ratio for men and women?
 
 ## Description
 This project aims to explore the disparities in wages and employment-to-population ratios across different education levels, focusing on Black and White populations in the USA. By analyzing two key datasets—wages by education level and employment-to-population ratios—this project seeks to investigate how education influences both employment and wage outcomes for men and women, with a specific focus on racial differences.

@@ -163,8 +163,9 @@ def merge_data_sets(wages_data_transformed, employment_data_transformed):
         except Exception as e:
            sys.exit("Unknown error occurred while merging datasets. Pipeline terminated...")
 
+def drop_columns(df, columns_to_drop = []):
+    return df.drop(columns=columns_to_drop)
     
-
 def transform_wages_data_set(wages_data):
 
     # Check if wages data is not empty
@@ -176,6 +177,9 @@ def transform_wages_data_set(wages_data):
     wages_data_columns_to_keep = ['year'] + [col for col in wages_data.columns if 'white' in col or 'black' in col]
     wages_data = wages_data[wages_data_columns_to_keep]
 
+    columns_to_drop = ["white_less_than_hs", "white_high_school","white_some_college", "white_bachelors_degree", "white_advanced_degree","black_less_than_hs", "black_high_school", "black_some_college", "black_bachelors_degree", "black_advanced_degree"]
+    wages_data = drop_columns(wages_data, columns_to_drop)
+
     # Check if year column exists
     if 'year' not in wages_data.columns:
         sys.exit("Year column is missing from the data. Pipeline terminated....")
@@ -185,32 +189,32 @@ def transform_wages_data_set(wages_data):
 
     #2. Renaming columns
     wages_data_mapper = {
-    'white_less_than_hs': 'White_Less_HS_Hourly_Wage',
-    'white_high_school': 'White_HS_Hourly_Wage',
-    'white_some_college': 'White_Some_College_Hourly_Wage',
-    'white_bachelors_degree': 'White_Bachelors_Hourly_Wage',
-    'white_advanced_degree': 'White_Advanced_Hourly_Wage',
-    'white_men_less_than_hs': 'White_Men_Less_HS_Hourly_Wage',
+    # 'white_less_than_hs': 'White_Less_HS_Hourly_Wage',
+    # 'white_high_school': 'White_HS_Hourly_Wage',
+    # 'white_some_college': 'White_Some_College_Hourly_Wage',
+    # 'white_bachelors_degree': 'White_Bachelors_Hourly_Wage',
+    # 'white_advanced_degree': 'White_Advanced_Hourly_Wage',
+    'white_men_less_than_hs': 'White_Men_Less_Than_High_School_Hourly_Wage',
     'white_men_high_school': 'White_Men_HS_Hourly_Wage',
     'white_men_some_college': 'White_Men_Some_College_Hourly_Wage',
     'white_men_bachelors_degree': 'White_Men_Bachelors_Hourly_Wage',
     'white_men_advanced_degree': 'White_Men_Advanced_Hourly_Wage',
-    'white_women_less_than_hs': 'White_Women_Less_HS_Hourly_Wage',
+    'white_women_less_than_hs': 'White_Women_Less_Than_High_School_Hourly_Wage',
     'white_women_high_school': 'White_Women_HS_Hourly_Wage',
     'white_women_some_college': 'White_Women_Some_College_Hourly_Wage',
     'white_women_bachelors_degree': 'White_Women_Bachelors_Hourly_Wage',
     'white_women_advanced_degree': 'White_Women_Advanced_Hourly_Wage',
-    'black_less_than_hs': 'Black_Less_HS_Hourly_Wage',
-    'black_high_school': 'Black_HS_Hourly_Wage',
-    'black_some_college': 'Black_Some_College_Hourly_Wage',
-    'black_bachelors_degree': 'Black_Bachelors_Hourly_Wage',
-    'black_advanced_degree': 'Black_Advanced_Hourly_Wage',
-    'black_men_less_than_hs': 'Black_Men_Less_HS_Hourly_Wage',
+    # 'black_less_than_hs': 'Black_Less_Than_High_School_Hourly_Wage',
+    # 'black_high_school': 'Black_HS_Hourly_Wage',
+    # 'black_some_college': 'Black_Some_College_Hourly_Wage',
+    # 'black_bachelors_degree': 'Black_Bachelors_Hourly_Wage',
+    # 'black_advanced_degree': 'Black_Advanced_Hourly_Wage',
+    'black_men_less_than_hs': 'Black_Men_Less_Than_High_School_Hourly_Wage',
     'black_men_high_school': 'Black_Men_HS_Hourly_Wage',
     'black_men_some_college': 'Black_Men_Some_College_Hourly_Wage',
     'black_men_bachelors_degree': 'Black_Men_Bachelors_Hourly_Wage',
     'black_men_advanced_degree': 'Black_Men_Advanced_Hourly_Wage',
-    'black_women_less_than_hs': 'Black_Women_Less_HS_Hourly_Wage',
+    'black_women_less_than_hs': 'Black_Women_Less_Than_High_School_Hourly_Wage',
     'black_women_high_school': 'Black_Women_HS_Hourly_Wage',
     'black_women_some_college': 'Black_Women_Some_College_Hourly_Wage',
     'black_women_bachelors_degree': 'Black_Women_Bachelors_Degree_Hourly_Wage',
@@ -236,16 +240,68 @@ def transform_wages_data_set(wages_data):
 
     #5. Adding new columns - White and Black people avg hourly wage for both men and women combined
 
-    white_columns = ['White_Less_HS_Hourly_Wage', 'White_HS_Hourly_Wage', 'White_Some_College_Hourly_Wage',
-                 'White_Bachelors_Hourly_Wage', 'White_Advanced_Hourly_Wage']
-    wages_data['White_People_Average_Hourly_Wage'] = wages_data[white_columns].mean(axis=1)
+    white_men_cols = [
+    'White_Men_Less_Than_High_School_Hourly_Wage', 'White_Men_HS_Hourly_Wage',
+    'White_Men_Some_College_Hourly_Wage', 'White_Men_Bachelors_Hourly_Wage',
+    'White_Men_Advanced_Hourly_Wage'
+        ]
 
-    black_columns = ['Black_Less_HS_Hourly_Wage', 'Black_HS_Hourly_Wage', 'Black_Some_College_Hourly_Wage',
-                 'Black_Bachelors_Hourly_Wage', 'Black_Advanced_Hourly_Wage']
-    wages_data['Black_People_Average_Hourly_Wage'] = wages_data[black_columns].mean(axis=1)
+    black_men_cols = [
+    'Black_Men_Less_Than_High_School_Hourly_Wage', 'Black_Men_HS_Hourly_Wage',
+    'Black_Men_Some_College_Hourly_Wage', 'Black_Men_Bachelors_Hourly_Wage',
+    'Black_Men_Advanced_Hourly_Wage'
+    ]
 
-    wages_data['Black_People_Average_Hourly_Wage'] = wages_data['Black_People_Average_Hourly_Wage'].round(2)
-    wages_data['White_People_Average_Hourly_Wage'] = wages_data['White_People_Average_Hourly_Wage'].round(2)
+    white_women_cols = [
+    'White_Women_Less_Than_High_School_Hourly_Wage', 'White_Women_HS_Hourly_Wage',
+    'White_Women_Some_College_Hourly_Wage', 'White_Women_Bachelors_Hourly_Wage',
+    'White_Women_Advanced_Hourly_Wage'
+    ]
+
+    black_women_cols = [
+    'Black_Women_Less_Than_High_School_Hourly_Wage', 'Black_Women_HS_Hourly_Wage',
+    'Black_Women_Some_College_Hourly_Wage', 'Black_Women_Bachelors_Degree_Hourly_Wage',
+    'Black_Women_Advanced_Degree_Hourly_Wage'
+    ]
+
+    wages_data['White_Men_Avg_Wage'] = wages_data[white_men_cols].mean(axis=1).round(2)
+    wages_data['Black_Men_Avg_Wage'] = wages_data[black_men_cols].mean(axis=1).round(2)
+    wages_data['White_Women_Avg_Wage'] = wages_data[white_women_cols].mean(axis=1).round(2)
+    wages_data['Black_Women_Avg_Wage'] = wages_data[black_women_cols].mean(axis=1).round(2)
+
+    wages_data['White_Men_vs_Black_Men_Wage_Gap'] = abs(wages_data['White_Men_Avg_Wage'] - wages_data['Black_Men_Avg_Wage']).round(2)
+    wages_data['White_Women_vs_Black_Women_Wage_Gap'] = abs(wages_data['White_Women_Avg_Wage'] - wages_data['Black_Women_Avg_Wage']).round(2)
+
+    wages_data['White_Men_vs_White_Women_Wage_Gap'] = abs(wages_data['White_Men_Avg_Wage'] - wages_data['White_Women_Avg_Wage']).round(2)
+    wages_data['Black_Men_vs_Black_Women_Wage_Gap'] = abs(wages_data['Black_Men_Avg_Wage'] - wages_data['Black_Women_Avg_Wage']).round(2)
+
+    # Percentage Difference
+    wages_data['White_Men_vs_Black_Men_Wage_Gap_Percent'] = ((
+        wages_data['White_Men_vs_Black_Men_Wage_Gap'] / ((wages_data['White_Men_Avg_Wage'] + wages_data['Black_Men_Avg_Wage']) / 2) 
+    ) * 100).round(2)
+
+    wages_data['White_Women_vs_Black_Women_Gap_Percent'] = ((
+        wages_data['White_Women_vs_Black_Women_Wage_Gap'] / ((wages_data['White_Women_Avg_Wage'] + wages_data['Black_Women_Avg_Wage']) / 2) 
+    ) * 100).round(2)
+
+    wages_data['White_Men_vs_White_Women_Wage_Gap_Percent'] = ((
+        wages_data['White_Men_vs_White_Women_Wage_Gap'] / ((wages_data['White_Men_Avg_Wage'] + wages_data['White_Women_Avg_Wage']) / 2) 
+    ) * 100).round(2)
+
+    wages_data['Black_Men_vs_Black_Women_Wage_Gap_Percent'] = ((
+        wages_data['Black_Men_vs_Black_Women_Wage_Gap'] / ((wages_data['Black_Men_Avg_Wage'] + wages_data['Black_Women_Avg_Wage']) / 2) 
+    ) * 100).round(2)
+
+    # white_columns = ['White_Less_HS_Hourly_Wage', 'White_HS_Hourly_Wage', 'White_Some_College_Hourly_Wage',
+    #              'White_Bachelors_Hourly_Wage', 'White_Advanced_Hourly_Wage']
+    # wages_data['White_People_Average_Hourly_Wage'] = wages_data[white_columns].mean(axis=1)
+
+    # black_columns = ['Black_Less_HS_Hourly_Wage', 'Black_HS_Hourly_Wage', 'Black_Some_College_Hourly_Wage',
+    #              'Black_Bachelors_Hourly_Wage', 'Black_Advanced_Hourly_Wage']
+    # wages_data['Black_People_Average_Hourly_Wage'] = wages_data[black_columns].mean(axis=1)
+
+    # wages_data['Black_People_Average_Hourly_Wage'] = wages_data['Black_People_Average_Hourly_Wage'].round(2)
+    # wages_data['White_People_Average_Hourly_Wage'] = wages_data['White_People_Average_Hourly_Wage'].round(2)
     
     return wages_data
 
@@ -260,64 +316,79 @@ def transform_employment_data_set(employment_data):
     employment_data_to_keep = ['year'] + ['total_population'] + [col for col in employment_data.columns if 'white' in col or 'black' in col]
     employment_data = employment_data[employment_data_to_keep]
 
+    columns_to_drop = ["black", "black_16-24", "black_25-54", "black_55-64", "black_65+",
+                       "black_less_than_hs", "black_high_school", "black_some_college",
+                       "black_bachelors_degree", "black_advanced_degree", "black_women", "black_women_16-24",
+                        "black_women_25-54","black_women_55-64","black_women_65+", "black_men","black_men_16-24",
+                        "black_men_25-54","black_men_55-64","black_men_65+",
+
+                        "white", "white_16-24", "white_25-54", "white_55-64", "white_65+",
+                       "white_less_than_hs", "white_high_school", "white_some_college",
+                       "white_bachelors_degree", "white_advanced_degree", "white_women", "white_women_16-24",
+                        "white_women_25-54","white_women_55-64","white_women_65+", "white_men","white_men_16-24",
+                        "white_men_25-54","white_men_55-64","white_men_65+"]
+
+    employment_data = drop_columns(employment_data, columns_to_drop)
+
+
     #2. Renaming columns
     employment_data_mapper = {
-    'black': 'Black_Employment_Ratio_All_Ages',
-    'black_16-24': 'Black_Employment_Ratio_Age_16_24',
-    'black_25-54': 'Black_Employment_Ratio_Age_25_54',
-    'black_55-64': 'Black_Employment_Ratio_Age_55_64',
-    'black_65+': 'Black_Employment_Ratio_Age_65_Plus',
-    'black_less_than_hs': 'Black_Employment_Ratio_Less_Than_High_School',
-    'black_high_school': 'Black_Employment_Ratio_High_School',
-    'black_some_college': 'Black_Employment_Ratio_Some_College',
-    'black_bachelors_degree': 'Black_Employment_Ratio_Bachelors_Degree',
-    'black_advanced_degree': 'Black_Employment_Ratio_Advanced_Degree',
-    'black_women': 'Black_Women_Employment_Ratio_All_Ages',
-    'black_women_16-24': 'Black_Women_Employment_Ratio_Age_16_24',
-    'black_women_25-54': 'Black_Women_Employment_Ratio_Age_25_54',
-    'black_women_55-64': 'Black_Women_Employment_Ratio_Age_55_64',
-    'black_women_65+': 'Black_Women_Employment_Ratio_Age_65_Plus',
+    # 'black': 'Black_Employment_Ratio_All_Ages',
+    # 'black_16-24': 'Black_Employment_Ratio_Age_16_24',
+    # 'black_25-54': 'Black_Employment_Ratio_Age_25_54',
+    # 'black_55-64': 'Black_Employment_Ratio_Age_55_64',
+    # 'black_65+': 'Black_Employment_Ratio_Age_65_Plus',
+    # 'black_less_than_hs': 'Black_Employment_Ratio_Less_Than_High_School',
+    # 'black_high_school': 'Black_Employment_Ratio_High_School',
+    # 'black_some_college': 'Black_Employment_Ratio_Some_College',
+    # 'black_bachelors_degree': 'Black_Employment_Ratio_Bachelors_Degree',
+    # 'black_advanced_degree': 'Black_Employment_Ratio_Advanced_Degree',
+    # 'black_women': 'Black_Women_Employment_Ratio_All_Ages',
+    # 'black_women_16-24': 'Black_Women_Employment_Ratio_Age_16_24',
+    # 'black_women_25-54': 'Black_Women_Employment_Ratio_Age_25_54',
+    # 'black_women_55-64': 'Black_Women_Employment_Ratio_Age_55_64',
+    # 'black_women_65+': 'Black_Women_Employment_Ratio_Age_65_Plus',
     'black_women_less_than_hs': 'Black_Women_Employment_Ratio_Less_Than_High_School',
     'black_women_high_school': 'Black_Women_Employment_Ratio_High_School',
     'black_women_some_college': 'Black_Women_Employment_Ratio_Some_College',
     'black_women_bachelors_degree': 'Black_Women_Employment_Ratio_Bachelors_Degree',
     'black_women_advanced_degree': 'Black_Women_Employment_Ratio_Advanced_Degree',
-    'black_men': 'Black_Men_Employment_Ratio_All_Ages',
-    'black_men_16-24': 'Black_Men_Employment_Ratio_Age_16_24',
-    'black_men_25-54': 'Black_Men_Employment_Ratio_Age_25_54',
-    'black_men_55-64': 'Black_Men_Employment_Ratio_Age_55_64',
-    'black_men_65+': 'Black_Men_Employment_Ratio_Age_65_Plus',
+    # 'black_men': 'Black_Men_Employment_Ratio_All_Ages',
+    # 'black_men_16-24': 'Black_Men_Employment_Ratio_Age_16_24',
+    # 'black_men_25-54': 'Black_Men_Employment_Ratio_Age_25_54',
+    # 'black_men_55-64': 'Black_Men_Employment_Ratio_Age_55_64',
+    # 'black_men_65+': 'Black_Men_Employment_Ratio_Age_65_Plus',
     'black_men_less_than_hs': 'Black_Men_Employment_Ratio_Less_Than_High_School',
     'black_men_high_school': 'Black_Men_Employment_Ratio_High_School',
     'black_men_some_college': 'Black_Men_Employment_Ratio_Some_College',
     'black_men_bachelors_degree': 'Black_Men_Employment_Ratio_Bachelors_Degree',
     'black_men_advanced_degree': 'Black_Men_Employment_Ratio_Advanced_Degree',
     
-    'white': 'White_Employment_Ratio_All_Ages',
-    'white_16-24': 'White_Employment_Ratio_Age_16_24',
-    'white_25-54': 'White_Employment_Ratio_Age_25_54',
-    'white_55-64': 'White_Employment_Ratio_Age_55_64',
-    'white_65+': 'White_Employment_Ratio_Age_65_Plus',
-    'white_less_than_hs': 'White_Employment_Ratio_Less_Than_High_School',
-    'white_high_school': 'White_Employment_Ratio_High_School',
-    'white_some_college': 'White_Employment_Ratio_Some_College',
-    'white_bachelors_degree': 'White_Employment_Ratio_Bachelors_Degree',
-    'white_advanced_degree': 'White_Employment_Ratio_Advanced_Degree',
-    'white_women': 'White_Women_Employment_Ratio_All_Ages',
-    'white_women_16-24': 'White_Women_Employment_Ratio_Age_16_24',
-    'white_women_25-54': 'White_Women_Employment_Ratio_Age_25_54',
-    'white_women_55-64': 'White_Women_Employment_Ratio_Age_55_64',
-    'white_women_65+': 'White_Women_Employment_Ratio_Age_65_Plus',
+    # 'white': 'White_Employment_Ratio_All_Ages',
+    # 'white_16-24': 'White_Employment_Ratio_Age_16_24',
+    # 'white_25-54': 'White_Employment_Ratio_Age_25_54',
+    # 'white_55-64': 'White_Employment_Ratio_Age_55_64',
+    # 'white_65+': 'White_Employment_Ratio_Age_65_Plus',
+    # 'white_less_than_hs': 'White_Employment_Ratio_Less_Than_High_School',
+    # 'white_high_school': 'White_Employment_Ratio_High_School',
+    # 'white_some_college': 'White_Employment_Ratio_Some_College',
+    # 'white_bachelors_degree': 'White_Employment_Ratio_Bachelors_Degree',
+    # 'white_advanced_degree': 'White_Employment_Ratio_Advanced_Degree',
+    # 'white_women': 'White_Women_Employment_Ratio_All_Ages',
+    # 'white_women_16-24': 'White_Women_Employment_Ratio_Age_16_24',
+    # 'white_women_25-54': 'White_Women_Employment_Ratio_Age_25_54',
+    # 'white_women_55-64': 'White_Women_Employment_Ratio_Age_55_64',
+    # 'white_women_65+': 'White_Women_Employment_Ratio_Age_65_Plus',
     'white_women_less_than_hs': 'White_Women_Employment_Ratio_Less_Than_High_School',
     'white_women_high_school': 'White_Women_Employment_Ratio_High_School',
     'white_women_some_college': 'White_Women_Employment_Ratio_Some_College',
     'white_women_bachelors_degree': 'White_Women_Employment_Ratio_Bachelors_Degree',
     'white_women_advanced_degree': 'White_Women_Employment_Ratio_Advanced_Degree',
-    'white_men': 'White_Men_Employment_Ratio_All_Ages',
-    'white_men_16-24': 'White_Men_Employment_Ratio_Age_16_24',
-    'white_men_25-54': 'White_Men_Employment_Ratio_Age_25_54',
-    'white_men_55-64': 'White_Men_Employment_Ratio_Age_55_64',
-    'white_men_65+': 'White_Men_Employment_Ratio_Age_65_Plus',
+    # 'white_men': 'White_Men_Employment_Ratio_All_Ages',
+    # 'white_men_16-24': 'White_Men_Employment_Ratio_Age_16_24',
+    # 'white_men_25-54': 'White_Men_Employment_Ratio_Age_25_54',
+    # 'white_men_55-64': 'White_Men_Employment_Ratio_Age_55_64',
+    # 'white_men_65+': 'White_Men_Employment_Ratio_Age_65_Plus',
     'white_men_less_than_hs': 'White_Men_Employment_Ratio_Less_Than_High_School',
     'white_men_high_school': 'White_Men_Employment_Ratio_High_School',
     'white_men_some_college': 'White_Men_Employment_Ratio_Some_College',
@@ -340,6 +411,66 @@ def transform_employment_data_set(employment_data):
 
     #4. fill na values with imputation strategy defined by user, default = "mean"
     employment_data = fill_missing_values_excluding_columns(employment_data, ["year","total_population"], "mean")
+
+    white_men_cols = [
+    'White_Men_Employment_Ratio_Less_Than_High_School', 
+    'White_Men_Employment_Ratio_High_School',
+    'White_Men_Employment_Ratio_Some_College', 
+    'White_Men_Employment_Ratio_Bachelors_Degree',
+    'White_Men_Employment_Ratio_Advanced_Degree'
+    ]
+
+    black_men_cols = [
+    'Black_Men_Employment_Ratio_Less_Than_High_School', 
+    'Black_Men_Employment_Ratio_High_School',
+    'Black_Men_Employment_Ratio_Some_College', 
+    'Black_Men_Employment_Ratio_Bachelors_Degree',
+    'Black_Men_Employment_Ratio_Advanced_Degree'
+        ]
+
+    white_women_cols = [
+    'White_Women_Employment_Ratio_Less_Than_High_School', 
+    'White_Women_Employment_Ratio_High_School',
+    'White_Women_Employment_Ratio_Some_College', 
+    'White_Women_Employment_Ratio_Bachelors_Degree',
+    'White_Women_Employment_Ratio_Advanced_Degree'
+    ]
+
+    black_women_cols = [
+    'Black_Women_Employment_Ratio_Less_Than_High_School', 
+    'Black_Women_Employment_Ratio_High_School',
+    'Black_Women_Employment_Ratio_Some_College', 
+    'Black_Women_Employment_Ratio_Bachelors_Degree',
+    'Black_Women_Employment_Ratio_Advanced_Degree'
+    ]
+
+    employment_data['White_Men_Avg_Employment_Ratio'] = employment_data[white_men_cols].mean(axis=1).round(2)
+    employment_data['Black_Men_Avg_Employment_Ratio'] = employment_data[black_men_cols].mean(axis=1).round(2)
+    employment_data['White_Women_Avg_Employment_Ratio'] = employment_data[white_women_cols].mean(axis=1).round(2)
+    employment_data['Black_Women_Avg_Employment_Ratio'] = employment_data[black_women_cols].mean(axis=1).round(2)
+
+    employment_data['White_Men_vs_Black_Men_Employment_Gap'] = abs(employment_data['White_Men_Avg_Employment_Ratio'] - employment_data['Black_Men_Avg_Employment_Ratio']).round(2)
+    employment_data['White_Women_vs_Black_Women_Employment_Gap'] = abs(employment_data['White_Women_Avg_Employment_Ratio'] - employment_data['Black_Women_Avg_Employment_Ratio']).round(2)
+
+    employment_data['White_Men_vs_White_Women_Employment_Gap'] = abs(employment_data['White_Men_Avg_Employment_Ratio'] - employment_data['White_Women_Avg_Employment_Ratio']).round(2)
+    employment_data['Black_Men_vs_Black_Women_Employment_Gap'] = abs(employment_data['Black_Men_Avg_Employment_Ratio'] - employment_data['Black_Women_Avg_Employment_Ratio']).round(2)
+
+    # # Percentage Difference
+    employment_data['White_Men_vs_Black_Men_Employment_Gap_Percent'] = ((
+        employment_data['White_Men_vs_Black_Men_Employment_Gap'] / ((employment_data['White_Men_Avg_Employment_Ratio'] + employment_data['Black_Men_Avg_Employment_Ratio']) / 2) 
+    ) * 100).round(2)
+
+    employment_data['White_Women_vs_Black_Women_Employment_Gap_Percent'] = ((
+        employment_data['White_Women_vs_Black_Women_Employment_Gap'] / ((employment_data['White_Women_Avg_Employment_Ratio'] + employment_data['Black_Women_Avg_Employment_Ratio']) / 2) 
+    ) * 100).round(2)
+
+    employment_data['White_Men_vs_White_Women_Employment_Gap_Percent'] = ((
+        employment_data['White_Men_vs_White_Women_Employment_Gap'] / ((employment_data['White_Men_Avg_Employment_Ratio'] + employment_data['White_Women_Avg_Employment_Ratio']) / 2) 
+    ) * 100).round(2)
+
+    employment_data['Black_Men_vs_Black_Women_Employment_Gap_Percent'] = ((
+        employment_data['Black_Men_vs_Black_Women_Employment_Gap'] / ((employment_data['Black_Men_Avg_Employment_Ratio'] + employment_data['Black_Women_Avg_Employment_Ratio']) / 2) 
+    ) * 100).round(2)
 
     return employment_data
 
@@ -406,10 +537,12 @@ def main():
 
     print(f"Transforming Wages Dataset...")
     transformed_wages_data_set = transform_wages_data_set(wage_by_education_dataset)
+    print(transformed_wages_data_set.shape)
     print(f"Wages Dataset Trasformation Done...\n")
 
     print(f"Transforming Employment-To_Population Dataset...")
     transformed_employment_data_set = transform_employment_data_set(employment_to_population_dataset)
+    print(transformed_employment_data_set.shape)
     print(f"Employment-To_Population Dataset Transformation Done...\n")
 
     print("Merging Both Datasets....")
